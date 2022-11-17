@@ -65,8 +65,12 @@ class JSONLoader:
              'journal_publishername', 'journal_title', 'journal_scopus_source_id']
         ].assign(journal_issn_isbn=self.data['journal_issn_isbn']
                  .apply(lambda x: '|'.join(str(i) for i in x) if x == x else x))
-        publications['tested_expressions'] = self.data['expressions'] \
-                                                 .apply(lambda x: json.dumps(x) if x == x else x)
+        if 'expressions' not in self.data:
+            publications['tested_expressions'] = pd.NA
+        else:
+            publications['tested_expressions'] = self.data[
+                'expressions'
+            ].apply(lambda x: json.dumps(x) if x == x else x)
         citescore = self.normalize_col('journal_citescore', explode=False) \
                         .rename(columns=lambda x: f'journal_{x}')
         return publications.join(citescore).convert_dtypes()

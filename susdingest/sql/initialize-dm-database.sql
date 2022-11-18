@@ -261,7 +261,7 @@ CREATE TABLE {SCHEMA}.snippet_validation (
     CONSTRAINT pk_reviewer_snippet_id PRIMARY KEY (id),
     CONSTRAINT fk_reviewer_snippet_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
     CONSTRAINT fk_reviewer_snippet_dyad_id FOREIGN KEY (dyad_id) REFERENCES {SCHEMA}.dyad(id),
-    CONSTRAINT fk_reviewer_snippet_reviewer_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.reviewer(id)
+    CONSTRAINT fk_reviewer_snippet_reviewer_id FOREIGN KEY (reviewer_id) REFERENCES {SCHEMA}.reviewer(id)
 );
  CREATE INDEX ix_snippet_validation_reviewer_id ON {SCHEMA}.snippet_validation (  reviewer_id );
  create unique index uix_snippet_validation_dyad_reviewer_run on {SCHEMA}.snippet_validation(run_id,reviewer_id,dyad_id);

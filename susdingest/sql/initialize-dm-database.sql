@@ -261,35 +261,47 @@ CREATE TABLE {SCHEMA}.snippet_validation (
     CONSTRAINT pk_reviewer_snippet_id PRIMARY KEY (id),
     CONSTRAINT fk_reviewer_snippet_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
     CONSTRAINT fk_reviewer_snippet_dyad_id FOREIGN KEY (dyad_id) REFERENCES {SCHEMA}.dyad(id),
-    CONSTRAINT fk_reviewer_snippet_reviewer_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.reviewer(id)
+    CONSTRAINT fk_reviewer_snippet_reviewer_id FOREIGN KEY (reviewer_id) REFERENCES {SCHEMA}.reviewer(id)
 );
  CREATE INDEX ix_snippet_validation_reviewer_id ON {SCHEMA}.snippet_validation (  reviewer_id );
  create unique index uix_snippet_validation_dyad_reviewer_run on {SCHEMA}.snippet_validation(run_id,reviewer_id,dyad_id);
 
 -- GEO coding
-CREATE TABLE {SCHEMA}.[affiliation_geo](
-  id bigint identity(1,1) not null,
-  geo_location geography null,
-  geo_boundingbox geography null,
-  [boundingbox] [varchar](max) NULL,
-  [lat] [float] NULL,
-  [lon] [float] NULL,
-  [q] [nvarchar](max) NOT NULL,
-  [q_final] [varchar](max) NULL,
-  [nattempt] [smallint] NULL,
-  [display_name] [nvarchar](max) NULL,
-  [importance] [float] NULL
-)
-ALTER TABLE {SCHEMA}.affiliation_geo add constraint pk_affiliation_geo_id primary key(id)
+CREATE TABLE {SCHEMA}.[affiliation_geocoding](
+    [id] [bigint] IDENTITY(1,1) NOT NULL,
+    source varchar(10),   -- GOOGLE or OSM for now
+    [geo_location] [geography] NULL,
+    [geo_boundingbox] [geography] NULL,
+    [boundingbox] [varchar](max) NULL,
+    [lat] [float] NULL,
+    [lon] [float] NULL,
+    city nvarchar(4000) NULL,
+    state nvarchar(4000) NULL,
+    state_short nvarchar(4000) NULL,
+    country nvarchar(4000) NULL,
+    country_short nvarchar(10) NULL,
+    [display_name] [nvarchar](max) NULL,
+    [q] [nvarchar](max) NOT NULL,
+    [q_final] [varchar](max) NULL,
+    [nattempt] [smallint] NULL,
+    [importance] [float] NULL,
+ CONSTRAINT [pk_affiliation_geocoding] PRIMARY KEY CLUSTERED 
+(
+    [id] ASC
+))
 
-CREATE TABLE {SCHEMA}.[publication_affiliation_geo](
-  run_id [bigint] NOT NULL,
-  [publication_affiliation_id] [bigint] NOT NULL,
-  affiliation_geo_id bigint not null
+CREATE TABLE {SCHEMA}.[publication_affiliation_geocoding](
+    [run_id] [bigint] NOT NULL,
+    [publication_affiliation_id] [bigint] NOT NULL,
+    [affiliation_geocoding_id] [bigint] NOT NULL
 )
-ALTER TABLE {SCHEMA}.[publication_affiliation_geo]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_arid] FOREIGN KEY([run_id])
+
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_agcid] FOREIGN KEY([affiliation_geocoding_id])
+REFERENCES {SCHEMA}.[affiliation_geocoding] ([id])
+
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_arcid] FOREIGN KEY([run_id])
 REFERENCES {SCHEMA}.[agency_run] ([id])
-ALTER TABLE {SCHEMA}.[publication_affiliation_geo]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_agid] FOREIGN KEY([affiliation_geo_id])
-REFERENCES {SCHEMA}.[affiliation_geo] ([id])
-ALTER TABLE {SCHEMA}.[publication_affiliation_geo]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_pagid] FOREIGN KEY([publication_affiliation_id])
+
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_pagcid] FOREIGN KEY([publication_affiliation_id]) 
 REFERENCES {SCHEMA}.[publication_affiliation] ([id])
+

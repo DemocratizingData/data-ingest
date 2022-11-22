@@ -267,7 +267,7 @@ CREATE TABLE {SCHEMA}.snippet_validation (
  create unique index uix_snippet_validation_dyad_reviewer_run on {SCHEMA}.snippet_validation(run_id,reviewer_id,dyad_id);
 
 -- GEO coding
-CREATE TABLE [dbo].[affiliation_geocoding](
+CREATE TABLE {SCHEMA}.[affiliation_geocoding](
     [id] [bigint] IDENTITY(1,1) NOT NULL,
     source varchar(10),   -- GOOGLE or OSM for now
     [geo_location] [geography] NULL,
@@ -290,18 +290,18 @@ CREATE TABLE [dbo].[affiliation_geocoding](
     [id] ASC
 ))
 
-CREATE TABLE [dbo].[publication_affiliation_geocoding](
+CREATE TABLE {SCHEMA}.[publication_affiliation_geocoding](
     [run_id] [bigint] NOT NULL,
     [publication_affiliation_id] [bigint] NOT NULL,
     [affiliation_geocoding_id] [bigint] NOT NULL
 )
 
-ALTER TABLE [dbo].[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_agcid] FOREIGN KEY([affiliation_geocoding_id])
-REFERENCES [dbo].[affiliation_geocoding] ([id])
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_agcid] FOREIGN KEY([affiliation_geocoding_id])
+REFERENCES {SCHEMA}.[affiliation_geocoding] ([id])
 
-ALTER TABLE [dbo].[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_arcid] FOREIGN KEY([run_id])
-REFERENCES [dbo].[agency_run] ([id])
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding] ADD  CONSTRAINT [fk_publication_affiliation_arcid] FOREIGN KEY([run_id])
+REFERENCES {SCHEMA}.[agency_run] ([id])
 
-ALTER TABLE [dbo].[publication_affiliation_geocoding]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_pagcid] FOREIGN KEY([publication_affiliation_id]) 
-REFERENCES [dbo].[publication_affiliation] ([id])
+ALTER TABLE {SCHEMA}.[publication_affiliation_geocoding]  WITH CHECK ADD  CONSTRAINT [fk_publication_affiliation_pagcid] FOREIGN KEY([publication_affiliation_id]) 
+REFERENCES {SCHEMA}.[publication_affiliation] ([id])
 

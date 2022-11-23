@@ -60,7 +60,7 @@ CREATE TABLE {SCHEMA}.publisher (
     id BIGINT IDENTITY(1,1) NOT NULL,
     run_id BIGINT not null,
     external_id nvarchar(128) ,
-    name nvarchar(120),
+    name nvarchar(256),
     last_updated_date datetime DEFAULT getdate() NOT NULL,
     CONSTRAINT pk_publisher_id PRIMARY KEY (id),
     CONSTRAINT fk_publisher_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),

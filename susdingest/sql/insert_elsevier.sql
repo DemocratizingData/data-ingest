@@ -62,7 +62,7 @@ SELECT {RUN_ID} as run_id,pda.id ,m.id,d.score
     FROM {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}dyads d
     INNER JOIN {SCHEMA}.publication p
         ON p.external_id = d.eid and p.run_id={RUN_ID}
-    INNER JOIN {SCHEMA}.dyad pda
+    LEFT OUTER JOIN {SCHEMA}.dyad pda
         ON pda.publication_id=p.id
        and isnull(pda.alias_id,-1)=isnull(d.alias_id,-1)
        and pda.run_id={RUN_ID}
@@ -114,7 +114,7 @@ LEFT OUTER JOIN {SCHEMA}.author a
      ON a.external_id = cast(epa.author_id as varchar(128))
     and a.run_id={RUN_ID}
 
-
+SET ANSI_WARNINGS OFF
 INSERT INTO {SCHEMA}.publication_affiliation (
    run_id, publication_id,sequence_number,external_id, institution_name,
    address,country_code,state,city,postal_code)
@@ -125,6 +125,7 @@ SELECT  distinct {RUN_ID}
 ,      affiliation_address_part, country_code, affiliation_state, affiliation_city , affiliation_postal_code
  FROM {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}affiliations a
  join {SCHEMA}.publication p on p.run_id={RUN_ID} and p.external_id=a.eid
+SET ANSI_WARNINGS ON
 
 
 INSERT INTO {SCHEMA}.author_affiliation (run_id, publication_author_id, publication_affiliation_id)

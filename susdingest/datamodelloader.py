@@ -30,12 +30,8 @@ class DatamodelLoader:
            END
         """
         # TODO add try/catch with logging in case something goes wrong
-        try:
-            self.DM_database.execute_update(sql)
-            return self.DM_database.get_run_id(AGENCY, VERSION)
-        except Exception as e:
-            logging.error("ERROR creating agency run\n"+str(e))
-            return None
+        self.DM_database.execute_update(sql)
+        return self.DM_database.get_run_id(AGENCY, VERSION)
 
     def copy_from_staging(self, AGENCY, VERSION, if_exists='replace', write_sql_log=False):
         if if_exists not in ['fail', 'replace']:
@@ -57,11 +53,8 @@ class DatamodelLoader:
         copy_command = copy_command.replace("{ORG}", AGENCY)
         copy_command = copy_command.replace("{VERSION}", VERSION)
         copy_command = copy_command.replace("{RUN_ID}", str(RUN_ID))
-        try:
-            self.DM_database.execute_update(copy_command)
-            logging.debug(f'submitting following SQL script\n{copy_command}')
-        except Exception as e:
-            logging.error(f'ERROR failure executing SQL\n{str(e)}\n\n{copy_command}')
+        logging.debug(f'submitting following SQL script\n{copy_command}')
+        self.DM_database.execute_update(copy_command)
 
     def delete_agency_run(self, AGENCY, VERSION, write_sql_log=False):
         # delete all data for an agency run
@@ -74,7 +67,4 @@ class DatamodelLoader:
         command = command.replace("{SCHEMA}", self.DM_SCHEMA)
         command = command.replace("{RUN_ID}", str(RUN_ID))
         logging.debug(f'submitting following SQL script\n{command}')
-        try:
-            self.DM_database.execute_update(command)
-        except Exception as e:
-            logging.error(f'ERROR executing delata agency\n{str(e)}\n\n{command}')
+        self.DM_database.execute_update(command)

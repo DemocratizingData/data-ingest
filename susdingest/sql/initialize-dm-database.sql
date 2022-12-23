@@ -60,7 +60,7 @@ CREATE TABLE {SCHEMA}.publisher (
     id BIGINT IDENTITY(1,1) NOT NULL,
     run_id BIGINT not null,
     external_id nvarchar(128) ,
-    name nvarchar(120),
+    name nvarchar(256),
     last_updated_date datetime DEFAULT getdate() NOT NULL,
     CONSTRAINT pk_publisher_id PRIMARY KEY (id),
     CONSTRAINT fk_publisher_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
@@ -98,7 +98,21 @@ CREATE TABLE {SCHEMA}.publication (
     CONSTRAINT fk_publication_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
     CONSTRAINT fk_publication_journal FOREIGN KEY (journal_id) REFERENCES {SCHEMA}.journal(id)
 );
- CREATE INDEX ix_publication_external_id ON {SCHEMA}.publication (  external_id );
+CREATE INDEX ix_publication_external_id ON {SCHEMA}.publication (  external_id );
+
+CREATE TABLE {SCHEMA}.publication_ufc(
+    id bigint identity(1,1) not null,
+    run_id bigint not null,
+    publication_id bigint not null,
+    concept_id bigint NULL,
+    concept_name varchar(1024) not NULL,
+    rank float NULL,
+    a_freq integer NULL,
+    CONSTRAINT pk_publication_ufc_id PRIMARY KEY (id),
+    CONSTRAINT fk_publication_ufc_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
+    CONSTRAINT fk_publication_ufc_publication_id FOREIGN KEY (publication_id) REFERENCES {SCHEMA}.publication(id),
+);
+CREATE INDEX ix_publication_ufc_conc_publ_id ON dbo.publication_ufc (run_id, concept_id, publication_id) include(concept_name);
 
 CREATE TABLE {SCHEMA}.publication_author (
     id BIGINT IDENTITY(1,1) NOT NULL,
@@ -221,7 +235,8 @@ CREATE TABLE {SCHEMA}.issn (
     ISSN varchar(13) ,
     last_updated_date datetime NOT NULL default getdate(),
     CONSTRAINT pk_issn_id PRIMARY KEY (id),
-    CONSTRAINT fk_issn_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id)
+    CONSTRAINT fk_issn_run_id FOREIGN KEY (run_id) REFERENCES {SCHEMA}.agency_run(id),
+    CONSTRAINT fk_issn_journal_id FOREIGN KEY (journal_id) REFERENCES {SCHEMA}.journal(id)
 );
 
 --==============================

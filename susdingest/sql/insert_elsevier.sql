@@ -58,7 +58,7 @@ SELECT DISTINCT {RUN_ID} as run_id, p.id as publication_id,da.id,pda.alias_id as
     LEFT OUTER JOIN {SCHEMA}.dataset_alias da ON da.alias_id = pda.alias_id and da.run_id={RUN_ID}
 
 INSERT INTO {SCHEMA}.dyad_model ( run_id, dyad_id, model_id, score)
-SELECT {RUN_ID} as run_id,pda.id ,m.id,d.score
+SELECT distinct {RUN_ID} as run_id,pda.id ,m.id,d.score
     FROM {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}dyads d
     INNER JOIN {SCHEMA}.publication p
         ON p.external_id = d.eid and p.run_id={RUN_ID}
@@ -69,7 +69,7 @@ SELECT {RUN_ID} as run_id,pda.id ,m.id,d.score
        and pda.mention_candidate=d.alias
        and isnull(pda.snippet,'')=isnull(d.snippet,'')
     INNER JOIN {SCHEMA}.model m on m.name=d.model
-
+;
 
 INSERT INTO {SCHEMA}.topic(run_id,keywords, external_topic_id,prominence)
 SELECT DISTINCT {RUN_ID}, etk.keywords,etk.Topic_Id,prominence
@@ -82,6 +82,13 @@ from {SCHEMA}.publication p
 inner join {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}topics et on et.eid=p.external_id
 inner join {SCHEMA}.topic t on t.external_topic_id = et.topic_id and t.run_id={RUN_ID}
 where p.run_id={RUN_ID}
+;
+
+insert into {SCHEMA}.publication_ufc(run_id,publication_id,concept_id,concept_name,rank,a_freq)
+select distinct {RUN_ID}, p.id, u.concept_id, u.concept_name, u.rank, u.a_freq
+  from {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}ufcs u
+  join {SCHEMA}.publication p
+    on p.run_id={RUN_ID} and p.external_id=u.eid
 ;
 
 INSERT INTO {SCHEMA}.asjc (run_id,code,label)
@@ -114,7 +121,7 @@ LEFT OUTER JOIN {SCHEMA}.author a
      ON a.external_id = cast(epa.author_id as varchar(128))
     and a.run_id={RUN_ID}
 
-
+SET ANSI_WARNINGS OFF
 INSERT INTO {SCHEMA}.publication_affiliation (
    run_id, publication_id,sequence_number,external_id, institution_name,
    address,country_code,state,city,postal_code)
@@ -125,6 +132,7 @@ SELECT  distinct {RUN_ID}
 ,      affiliation_address_part, country_code, affiliation_state, affiliation_city , affiliation_postal_code
  FROM {ELSEVIER_SCHEMA}.{ELSEVIER_PREFIX}affiliations a
  join {SCHEMA}.publication p on p.run_id={RUN_ID} and p.external_id=a.eid
+SET ANSI_WARNINGS ON
 
 
 INSERT INTO {SCHEMA}.author_affiliation (run_id, publication_author_id, publication_affiliation_id)
